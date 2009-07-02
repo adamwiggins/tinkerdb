@@ -8,6 +8,7 @@ end
 
 post '/sessions' do
 	session = Session.create(params)
+	session.populate_sample_data
 	redirect "/sessions/#{session.id}"
 end
 

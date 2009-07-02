@@ -1,5 +1,5 @@
 <form action="/sessions" method="post">
-	<input type="hidden" name="database_url" value="<%= ENV['DATABASE_URL'] %>" />
+	<input type="hidden" name="database_url" value="<%= ENV['DATABASE_URL'] || 'sqlite::memory' %>" />
 	<input type="hidden" name="user" value="joe@example.com" />
 	<input type="hidden" name="app" value="myapp.heroku.com" />
 	<input type="submit" value="Start a new session" />

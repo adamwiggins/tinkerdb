@@ -1,5 +1,12 @@
 <h3><%= @session.user %> editing database for <%= @session.app %></h3>
 
-
+<table>
+	<% @session.database.tables.each do |table| %>
+		<tr>
+			<td><%= table %></td>
+			<td><%= @session.database[table].count %> records</td>
+		</tr>
+	<% end %>
+</table>
 
 

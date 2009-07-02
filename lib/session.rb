@@ -1,4 +1,5 @@
 require 'sha1'
+require 'sequel'
 
 class Session
 	def self.all
@@ -27,5 +28,18 @@ class Session
 		@database_url = params[:database_url] or raise(ArgumentError, "No database url provided")
 		@user = params[:user]
 		@app = params[:app]
+	end
+
+	def database
+		@db ||= Sequel.connect(database_url)
+	end
+
+	def populate_sample_data
+		database.create_table(:sample_table) { integer :value1; integer :value2 }
+		database[:sample_table] << { :value1 => 1, :value2 => 2 }
+		database[:sample_table] << { :value1 => 3, :value2 => 4 }
+
+		database.create_table(:sample_table2) { integer :value3; integer :value4 }
+		database[:sample_table2] << { :value3 => 100, :value4 => 200 }
 	end
 end
