@@ -1,33 +1,25 @@
 require 'sha1'
 require 'sequel'
 
-class Session
-	def self.all
-		@@all ||= {}
+DB = Sequel.connect(ENV['DATABASE_URL'] || 'sqlite://development.sqlite3')
+
+unless DB.table_exists? :sessions
+	DB.create_table(:sessions) do
+		primary_key :id
+		text :database_url
+		text :user
+		text :app
+		text :key
+	end
+end
+
+class Session < Sequel::Model
+	def before_create
+		self.key = generate_key
 	end
 
-	class RecordNotFound < RuntimeError; end
-
-	def self.find(id)
-		all[id] or raise RecordNotFound
-	end
-
-	def self.create(params)
-		id = generate_id
-		all[id] = new(params.merge(:id => id))
-	end
-
-	def self.generate_id
+	def generate_key
 		SHA1.sha1((Time.now.to_f % 99999).to_s + rand.to_s).to_s
-	end
-
-	attr_accessor :id, :database_url, :user, :app
-
-	def initialize(params)
-		@id = params[:id]
-		@database_url = params[:database_url] or raise(ArgumentError, "No database url provided")
-		@user = params[:user]
-		@app = params[:app]
 	end
 
 	def database
@@ -35,6 +27,8 @@ class Session
 	end
 
 	def populate_sample_data
+		return if database.table_exists? :sample_table
+
 		database.create_table(:sample_table) { integer :value1; integer :value2 }
 		database[:sample_table] << { :value1 => 1, :value2 => 2 }
 		database[:sample_table] << { :value1 => 3, :value2 => 4 }
